@@ -21,7 +21,6 @@ RUN DEBIAN_FRONTEND=noninteractive && \
     add-apt-repository -y ppa:keithw/mosh && \
     apt-get update
 RUN DEBIAN_FRONTEND=noninteractive apt-get install -y \
-    sudo \
     curl wget aria2 rsync \
     git bzr mercurial \
     zip p7zip-full bzip2 \
@@ -29,13 +28,10 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get install -y \
     tcl python python-setuptools \
     tmux vim-nox diffutils patch
 
-RUN adduser --gecos "Primary User" --disabled-password fox && \
-    usermod -a -G adm,sudo fox
+ENV HOME /root
 
-ENV HOME /home/fox
+RUN git clone https://github.com/Painted-Fox/dotfiles $HOME/dotfiles
+RUN tclsh $HOME/dotfiles/update.tcl
+RUN $HOME/dotfiles/setup-linux.sh
 
-RUN sudo -u fox -- git clone https://github.com/Painted-Fox/dotfiles $HOME/dotfiles
-RUN sudo -u fox -- tclsh $HOME/dotfiles/update.tcl
-RUN cd $HOME/dotfiles && sudo -u fox -- $HOME/dotfiles/setup-linux.sh
-
-ENTRYPOINT ["sudo", "-i", "-u", "fox", "--", "bash", "-il"]
+ENTRYPOINT ["bash", "-il"]
